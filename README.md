@@ -32,29 +32,6 @@ To improve drowsiness detection accuracy:
 - Frame-based temporal consistency was considered
 
 ---
-
-## Model Development & Experiments
-
-### 1. Baseline Models
-- CNN-based pretrained models:
-  - VGG16, ResNet50, MobileNet, EfficientNet, DenseNet
-- Initial evaluation without fine-tuning
-
-### 2. Fine-Tuning Strategy
-- Layer-wise fine-tuning experiments:
-  - Top-20 layers
-  - Top-30%
-  - Full fine-tuning
-- Best **baseline** performance achieved with **EfficientNet fine-tuned at top-250 layers**
-
-### 3. Feature Extraction + ML
-- Deep features extracted from:
-  - Dense layer
-  - Global Average Pooling (GAP)
-- Linear SVC achieved best generalization without StandardScaler
-
----
-
 ## Custom Model: EffEmoteNet
 To improve both accuracy and real-time performance, a custom model was designed.
 
