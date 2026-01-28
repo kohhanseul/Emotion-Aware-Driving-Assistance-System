@@ -1,98 +1,95 @@
-# Emotion-Aware Driving Assistant (CHADURI)
+# 감정 인식 운전 보조 시스템(차두리)
 
-## Project Overview
-CHADURI is an emotion-aware driving assistance system that recognizes a driver’s facial expressions in real time and provides appropriate safety actions based on the detected emotional state.
+## 프로젝트 개요
+차두리는 운전자의 얼굴 표정을 실시간으로 인식하고 감지된 감정 상태에 따라 적절한 안전 조치를 제공하는 감정 인식 운전 보조 시스템입니다.
 
-Unlike conventional ADAS systems that rely mainly on vehicle behavior, this project focuses on **driver emotional awareness** as a primary safety signal, enabling earlier risk detection and context-aware responses.
-
----
-
-## Problem Statement
-Traffic accidents caused by driver factors such as drowsiness, anger, panic, and impulsive behavior remain a major contributor to road fatalities.
-
-This project aims to:
-- Detect driver emotions directly from facial expressions
-- Distinguish normal behavior (e.g., blinking) from dangerous states (e.g., microsleep)
-- Trigger emotion-specific assistance actions to prevent accidents
+기존의 ADAS 시스템은 주로 차량의 움직임에 의존하는 반면, 본 프로젝트는 운전자의 감정 인식을 주요 안전 신호로 활용하여 위험을 조기에 감지하고 상황에 맞는 대응을 가능하게 합니다.
 
 ---
 
-## Dataset & Class Design
-- Original facial expression dataset was restructured and cleaned
-- Ambiguous and low-quality samples were **manually reviewed and removed**
-- Final emotion classes:
-  - **Anger** (aggressive / risky driving)
-  - **Closed** (drowsiness / microsleep)
-  - **Panic** (sudden emergency response)
-  - **Sadness** (low attention / risk)
-  - **Happy** (safe driving state)
+## 문제 제기
+졸음, 분노, 공황, 충동적인 행동과 같은 운전자 요인으로 인한 교통사고는 여전히 도로 사망 사고의 주요 원인입니다.
 
-To improve drowsiness detection accuracy:
-- Normal blink duration (0.1–0.4s) was distinguished from microsleep (≥2s)
-- Frame-based temporal consistency was considered
+본 프로젝트의 목표는 다음과 같습니다.
+- 운전자의 감정을 얼굴 표정에서 직접 감지합니다.
+- 정상적인 행동(예: 눈 깜빡임)과 위험한 상태(예: 미세수면)를 구분하십시오.
+- 사고를 예방하기 위해 감정에 따른 맞춤형 지원 조치를 실행합니다.
 
----
-## Custom Model: EffEmoteNet
-To improve both accuracy and real-time performance, a custom model was designed.
-
-### Key Design Choices
-- Base architecture inspired by EfficientNet and ResEmoteNet
-- **MBConv blocks** used instead of standard residual blocks for parameter efficiency
-- **Sobel edge channel** added to emphasize eye-closure patterns
-- **CBAM (Channel & Spatial Attention)** applied to focus on critical facial regions
-
-### Result
-EffEmoteNet achieved the best balance between:
-- Accuracy
-- Model size
-- Inference speed
 
 ---
 
-## Real-Time Performance Evaluation
-- Inference speed comparison:
-  - ViT / EffEmoteNet: **4–8 ms per frame**
-  - EfficientNetV2-S: ~37 ms per frame
-- At 30 FPS:
-  - EffEmoteNet reliably distinguishes normal blinking (3–12 frames)
-    from microsleep (~60 frames)
-  - Suitable for real-time driving assistance
+## 데이터셋 및 클래스 디자인
+- 기존 얼굴 표정 데이터셋을 재구성하고 정제했습니다.
+- 모호하거나 품질이 낮은 샘플은 수동으로 검토하여 제거했습니다.
+- 감정 분류
+  - **Anger**  (공격적/위험한 운전)
+  - **Closed** (졸음/미세수면)
+  - **Panic** (갑작스러운 응급 반응)
+  - **Sadness** (낮은 주의력/위험도)
+  - **Happy** (안전 운전 상태)
+
+졸음 감지 정확도를 향상시키기 위한 노력
+- 정상적인 눈 깜빡임 시간(0.1~0.4초)은 미세수면(≥2초)과 구분되었다.
+- 프레임 기반 시간적 일관성이 고려되었습니다.
+
+---
+## 사용자 정의 모델: EffEmoteNet
+정확도와 실시간 성능을 모두 향상시키기 위해 맞춤형 모델을 설계했습니다.
+
+### 주요 설계 선택 사항
+- EfficientNet 및 ResEmoteNet에서 영감을 받은 기본 아키텍처
+- 매개변수 효율성을 위해 표준 잔차 블록 대신 MBConv 블록을 사용합니다.
+- 눈 감는 패턴을 강조하기 위해 소벨 에지 채널이 추가되었습니다.
+- CBAM(채널 및 공간 주의)을 적용하여 얼굴의 주요 영역에 집중합니다.
+
+### 결과
+EffEmoteNet이 accuary, 모델 크기, 추록 속도 이 3가지의 요소들 사이에서 최상의 균형을 보였습니다.
 
 ---
 
-## System Architecture
+## 실시간 성능 평가
+- 추론 속도 비교
+  - ViT/EffEmoteNet: 프레임당 4~8ms
+  - EfficientNetV2-S: 프레임당 약 37ms
+- 30 FPS에서
+  - EffEmoteNet은 정상적인 눈 깜빡임(3~12프레임)과 미세수면(~60프레임)을 안정적으로 구분합니다.
+  - 따라서, 실시간 주행 보조에 적합합니다.
 
-### Demo Environment
-- **Webcam**: driver face input
-- **Emotion Classification Model**: EffEmoteNet + Sobel + CBAM
+
+---
+
+### 데모 환경
+- **웹캠**: 운전자 얼굴 데이터
+- **감정 분류 모델**: EffEmoteNet + Sobel + CBAM
 - **LLM (Gemini 2.5 Flash)**:
-  - Emotion explanation
-  - Driver interaction messages
-- **Streamlit**: real-time dashboard
-- **MetaDrive Simulator**: emotion-driven vehicle behavior simulation
+  - 실시간 감정 상태 설명
+  - 운전자 상호 작용 메시지
+  - 끝말잇기 등의 추가적인 요소
+- **Streamlit**: 실시간 대시보드
+- **MetaDrive Simulator**: 차량 시뮬레이션
 
 ---
 
-## Assistance Scenarios
-*(The following scenarios are partially implemented for demo purposes.)*
+## 지원 시나리오
+*(다음 시나리오들은 데모 목적으로 **부분적으로** 구현되었습니다.)*
 
-- **Closed (Drowsy)**:
-  - Hazard lights ON
-  - Shoulder stop
-  - Interactive word-chain game for alertness
+- **Closed (졸음)**:
+  - 비상등 켜짐
+  - 어깨 정지
+  - 집중력 향상을 위한 상호작용형 단어 연결 게임
 - **Panic**:
-  - Emergency message
-  - Location sharing if no driver response
+  - 긴급 메시지
+  - 운전자가 응답하지 않을 경우 위치 공유
 - **Anger / Sadness**:
-  - Caution warnings to surrounding vehicles
+  - 주변 차량에 대한 주의 경고
 - **Happy**:
-  - Safe driving indicator
+  - 안전 운전 표시
 
 ---
 
-## Tech Stack
+## 기술 스택
 - **Language**: Python
-- **DL Frameworks**: TensorFlow, PyTorch
+- **딥러닝 프레임워크**: TensorFlow, PyTorch
 - **CV**: OpenCV, MTCNN
 - **Models**: EfficientNet, ViT, Custom CNN (EffEmoteNet)
 - **Attention**: CBAM
@@ -102,18 +99,16 @@ EffEmoteNet achieved the best balance between:
 
 ---
 
-## My Role
-- Designed overall system architecture
-- Conducted extensive model comparison and fine-tuning experiments
-- Integrated Sobel filtering and CBAM attention
-- Implemented real-time inference and demo system
-- Connected emotion recognition to driving simulation and LLM-based interaction
+## 내 역할
+- 전체 시스템 아키텍처를 설계했습니다.
+- 광범위한 모델 비교 및 ​​파인튜닝 실험을 수행했습니다.
+- 외부 API(LLM, 사전 API 등) 연결 및 통합 로직 구현했습니다.
 
 ---
 
-## Notes
-- This repository represents a **demo implementation** of the proposed system.
-- Core components such as real-time emotion recognition, model inference,
-  and UI integration are fully implemented.
-- Assistance scenarios are designed at the system level and partially implemented
-  to validate feasibility and real-time performance.
+## 메모
+-이 저장소는 제안된 시스템의 데모 구현을 나타냅니다.
+- 실시간 감정 인식, 모델 추론, UI 통합과 같은 핵심 구성 요소가 완벽하게 구현되었습니다.
+- 지원 시나리오는 시스템 수준에서 설계되고, 실현 가능성과 실시간 성능을 검증하기 위해 부분적으로 구현됩니다.
+
+
