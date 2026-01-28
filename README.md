@@ -105,7 +105,6 @@ EffEmoteNet achieved the best balance between:
 ## My Role
 - Designed overall system architecture
 - Conducted extensive model comparison and fine-tuning experiments
-- **Led the design and implementation of the EffEmoteNet custom model**
 - Integrated Sobel filtering and CBAM attention
 - Implemented real-time inference and demo system
 - Connected emotion recognition to driving simulation and LLM-based interaction
