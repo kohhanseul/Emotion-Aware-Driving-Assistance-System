@@ -6,7 +6,7 @@ Usage:
     python training/effemotenet_train.py
 """
 
-#라이브러리 뷸러오기
+#라이브러리 불러오기
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
