@@ -2,7 +2,7 @@
 import json
 import time
 import os
-from config import STATE_FILE
+from config.config import STATE_FILE 
 
 
 def save_state(emotion, is_accident):
