@@ -10,3 +10,4 @@ tensorflow
 numpy
 Pillow
 metadrive-simulator
+python-dotenv
