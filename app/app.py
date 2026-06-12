@@ -20,9 +20,8 @@ from utils import load_state
 # Gemini API 키 설정 (config.py에서 가져오거나 직접 설정)
 os.environ["GOOGLE_API_KEY"] = config.GOOGLE_API_KEY
 
-# 국어사전 API 키 (노트북에 있던 키 유지)
-KOREAN_DICT_API_KEY = "REMOVED"
-SEARCH_URL = "https://opendict.korean.go.kr/api/search"
+# 국어사전 API 키 config에서 가져오기 (상단 import 부근):
+from config.config import GOOGLE_API_KEY, KOREAN_DICT_API_KEY
 
 # Streamlit 페이지 설정
 st.set_page_config(page_title="차두리 AI", layout="centered")
