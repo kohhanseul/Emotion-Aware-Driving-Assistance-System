@@ -11,17 +11,11 @@ from langchain_core.output_parsers import JsonOutputParser
 from langchain_google_genai import ChatGoogleGenerativeAI
 
 # 프로젝트 설정 및 유틸리티 임포트
-import config
-from utils import load_state
-
-# ==========================================
-# 1. 초기 설정 (API 키 및 세션)
-# ==========================================
-# Gemini API 키 설정 (config.py에서 가져오거나 직접 설정)
-os.environ["GOOGLE_API_KEY"] = config.GOOGLE_API_KEY
-
-# 국어사전 API 키 config에서 가져오기 (상단 import 부근):
+from config import config
 from config.config import GOOGLE_API_KEY, KOREAN_DICT_API_KEY
+from utils.utils import load_state
+
+os.environ["GOOGLE_API_KEY"] = GOOGLE_API_KEY
 
 # Streamlit 페이지 설정
 st.set_page_config(page_title="차두리 AI", layout="centered")
