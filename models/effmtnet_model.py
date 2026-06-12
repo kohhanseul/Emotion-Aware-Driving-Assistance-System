@@ -10,7 +10,7 @@ Y-Sobel 엣지 채널과 CBAM(채널·공간 어텐션)을 결합한
     - EffEmoteNet: 전체 분류 네트워크
 """
 
-#라이브러리 뷸러오기
+#라이브러리 불러오기
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
