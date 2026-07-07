@@ -74,7 +74,7 @@
 
 ## 데모 구성
 
-웹캠(블랙박스 대체) → 감정 분류(EffEmoteNet) → **LLM(Gemini 2.5 Flash-Lite)** 이 감정별 next_action 결정 → Streamlit 대시보드 + MetaDrive 차량 시뮬레이션
+웹캠(블랙박스 대체) → 감정 분류(EffEmoteNet) → **LLM(Gemini 2.0 Flash-Lite)** 이 감정별 next_action 결정 → Streamlit 대시보드 + MetaDrive 차량 시뮬레이션
 
 - closed: 외부 디스플레이 "졸음운전" 경고 + 끝말잇기 각성 유도 (끝말잇기 단어 검증에 우리말샘 사전 API 연동)
 - panic: 응급 확인 멘트 → 무응답 시 119 위치 전송
@@ -105,15 +105,46 @@
 | Language | Python |
 | DL Framework | PyTorch (EffEmoteNet, ViT), TensorFlow (사전학습 모델 비교) |
 | CV | OpenCV, MTCNN |
-| LLM | Gemini 2.5 Flash-Lite (+ 우리말샘 사전 API) |
+| LLM | Gemini 2.0 Flash-Lite (+ 우리말샘 사전 API) |
 | Simulation | MetaDrive |
 | UI | Streamlit |
 | 실험 환경 | NVIDIA A40 (43GB), CUDA/cuDNN |
 
+## 저장소 구성
+
+```
+├── demo_emotion.py            # 표정 인식 데모 (웹캠/이미지)
+├── app/app.py                 # LLM 대응 시나리오 데모 (Streamlit)
+├── models/
+│   ├── effemotenet_infer.py   # 추론 전용 모델 정의
+│   └── effeemotnet_model.py   # 학습 당시 모델·실험 코드
+├── scripts/export_inference_weights.py  # 학습 체크포인트 → 추론용 가중치 추출
+├── preprocessing/face.py      # MTCNN 얼굴 크롭 전처리 (학습 데이터 제작용)
+└── training/effemotenet_train.py
+```
+
 ## 실행 방법
+
+### 1) 표정 인식 데모 (EffEmoteNet)
+
+학습된 가중치(`effemotenet_infer.pt`, 약 215MB / 56M 파라미터)는
+**[GitHub Releases](../../releases)** 에서 다운로드해 `models/` 폴더에 넣어주세요.
 
 ```bash
 pip install -r requirements.txt
+
+python demo_emotion.py --webcam              # 웹캠 실시간 데모
+python demo_emotion.py --image face.jpg      # 이미지 1장 분류
+```
+
+- `facenet-pytorch`가 설치되어 있으면 MTCNN으로 얼굴을 크롭해 입력하고, 없으면 프레임 전체를 사용합니다 (`pip install facenet-pytorch`, 선택).
+- 표의 추론 속도 3.06ms는 NVIDIA A40 기준이며, CPU에서는 프레임당 수십 ms 수준입니다.
+
+### 2) LLM 대응 시나리오 데모 (Streamlit)
+
+감정 분류 결과에 따라 LLM이 경고·끝말잇기·119 연계 등 next_action을 결정하는 부분입니다.
+
+```bash
 cp .env.example .env   # GOOGLE_API_KEY, KOREAN_DICT_API_KEY 입력
 streamlit run app/app.py
 ```
