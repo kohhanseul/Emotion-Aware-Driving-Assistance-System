@@ -117,7 +117,7 @@
 ├── app/app.py                 # LLM 대응 시나리오 데모 (Streamlit)
 ├── models/
 │   ├── effemotenet_infer.py   # 추론 전용 모델 정의
-│   └── effeemotnet_model.py   # 학습 당시 모델·실험 코드
+│   └── effemotenet_model.py   # 학습 당시 모델·실험 코드
 ├── scripts/export_inference_weights.py  # 학습 체크포인트 → 추론용 가중치 추출
 ├── preprocessing/face.py      # MTCNN 얼굴 크롭 전처리 (학습 데이터 제작용)
 └── training/effemotenet_train.py

@@ -1,6 +1,6 @@
 """EffEmoteNet 추론 전용 모듈.
 
-학습 코드(effeemotnet_model.py)와 달리 데이터 로딩 등 부작용 없이
+학습 코드(effemotenet_model.py)와 달리 데이터 로딩 등 부작용 없이
 import만으로 사용할 수 있는 추론 전용 정의입니다.
 
 - 입력: 4채널 (RGB + Y-Sobel 엣지 채널), 300x300
