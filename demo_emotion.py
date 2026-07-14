@@ -1,15 +1,13 @@
-"""실시간 표정 인식 데모.
+"""실시간 표정 인식 데모
 
-웹캠 또는 이미지 파일에서 운전자 표정을 5클래스
-(anger, closed, happy, panic, sadness)로 분류한다.
+웹캠 또는 이미지 파일에서 표정 5클래스(anger, closed, happy, panic, sadness) 분류
 
 사용법:
     python demo_emotion.py --webcam
     python demo_emotion.py --image path/to/face.jpg
 
-가중치 파일(models/effemotenet_infer.pt)은 GitHub Releases에서 다운로드.
-facenet-pytorch가 설치되어 있으면 MTCNN으로 얼굴을 크롭하고,
-없으면 프레임 전체를 입력으로 사용한다.
+가중치(models/effemotenet_infer.pt)는 GitHub Releases에서 다운로드
+facenet-pytorch 있으면 MTCNN으로 얼굴 크롭, 없으면 프레임 전체 사용
 """
 
 import argparse
@@ -23,7 +21,7 @@ from models.effemotenet_infer import CLASS_NAMES, INPUT_SIZE, add_sobel_channel,
 
 DEFAULT_WEIGHTS = "models/effemotenet_infer.pt"
 
-# 학습 전처리와 동일: 300x300 리사이즈 → 텐서 → Y-Sobel 4번째 채널 추가
+# 학습 때 전처리랑 동일하게: 300x300 리사이즈 -> 텐서 -> Y-Sobel 4번째 채널 추가
 TRANSFORM = transforms.Compose([
     transforms.Resize((INPUT_SIZE, INPUT_SIZE)),
     transforms.ToTensor(),
@@ -32,11 +30,11 @@ TRANSFORM = transforms.Compose([
 
 
 def get_face_cropper(device):
-    """facenet-pytorch가 있으면 MTCNN 크롭 함수를, 없으면 None을 반환."""
+    # facenet-pytorch 있으면 MTCNN 크롭 함수 반환, 없으면 None
     try:
         from facenet_pytorch import MTCNN
     except ImportError:
-        print("[안내] facenet-pytorch 미설치 → 얼굴 크롭 없이 전체 프레임을 사용합니다.")
+        print("[안내] facenet-pytorch 미설치 -> 얼굴 크롭 없이 전체 프레임 사용")
         return None
 
     mtcnn = MTCNN(image_size=224, margin=20, device=device, keep_all=False)
@@ -69,7 +67,7 @@ def run_image(model, image_path, device):
         if face is not None:
             pil_img = face
         else:
-            print("[안내] 얼굴을 찾지 못해 이미지 전체를 사용합니다.")
+            print("[안내] 얼굴 못 찾음 -> 이미지 전체 사용")
     label, conf, ms = predict(model, pil_img, device)
     print(f"예측: {label} (confidence {conf:.3f}, 추론 {ms:.1f}ms)")
 
@@ -80,8 +78,8 @@ def run_webcam(model, device):
     cropper = get_face_cropper(device)
     cap = cv2.VideoCapture(0)
     if not cap.isOpened():
-        raise RuntimeError("웹캠을 열 수 없습니다.")
-    print("q 키로 종료합니다.")
+        raise RuntimeError("웹캠을 열 수 없음")
+    print("q 키로 종료")
 
     while True:
         ok, frame = cap.read()

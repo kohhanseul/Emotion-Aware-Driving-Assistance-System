@@ -1,9 +1,9 @@
-"""EffEmoteNet 추론 전용 모듈.
+"""EffEmoteNet 추론 전용 모듈
 
-학습 코드(effemotenet_model.py)와 달리 데이터 로딩 등 부작용 없이
-import만으로 사용할 수 있는 추론 전용 정의입니다.
+학습 코드(effemotenet_model.py)는 import만 해도 데이터 로딩까지 실행돼서
+추론용으로 따로 분리한 파일. import 부작용 없음
 
-- 입력: 4채널 (RGB + Y-Sobel 엣지 채널), 300x300
+- 입력: 4채널 (RGB + Y-Sobel 엣지), 300x300
 - 출력: 5클래스 (anger, closed, happy, panic, sadness)
 - 가중치: models/effemotenet_infer.pt (GitHub Releases에서 다운로드)
 """
@@ -17,16 +17,16 @@ INPUT_SIZE = 300
 
 
 class MBConvBlock(nn.Module):
-    """EfficientNet의 역병목(Inverted-Bottleneck) 합성곱 블록."""
-
+    # EfficientNet의 역병목 블록. 채널 확장 -> depthwise -> 축소
     def __init__(self, in_channels, out_channels, kernel_size, stride, expand_ratio):
         super().__init__()
         hidden_dim = in_channels * expand_ratio
-        self.expand = in_channels != out_channels
+        self.expand = in_channels != out_channels  # in/out 같을 때만 residual
         self.block = nn.Sequential(
             nn.Conv2d(in_channels, hidden_dim, 1, 1, 0, bias=False),
             nn.BatchNorm2d(hidden_dim),
             nn.ReLU6(inplace=True),
+            # depthwise (groups=hidden_dim -> 채널별 따로 conv)
             nn.Conv2d(hidden_dim, hidden_dim, kernel_size, stride, kernel_size // 2,
                       groups=hidden_dim, bias=False),
             nn.BatchNorm2d(hidden_dim),
@@ -42,8 +42,7 @@ class MBConvBlock(nn.Module):
 
 
 class SEBlock(nn.Module):
-    """Squeeze-and-Excitation 채널 어텐션."""
-
+    # Squeeze-and-Excitation 채널 어텐션 (채널별 중요도 학습)
     def __init__(self, in_channels, reduction=16):
         super().__init__()
         self.avg_pool = nn.AdaptiveAvgPool2d(1)
@@ -62,6 +61,7 @@ class SEBlock(nn.Module):
 
 
 class ChannelAttention(nn.Module):
+    # CBAM의 채널 어텐션. 평균 풀링 + 최대 풀링 둘 다 사용
     def __init__(self, in_planes, ratio=16):
         super().__init__()
         self.avg_pool = nn.AdaptiveAvgPool2d(1)
@@ -78,6 +78,7 @@ class ChannelAttention(nn.Module):
 
 
 class SpatialAttention(nn.Module):
+    # CBAM의 공간 어텐션. 어느 위치가 중요한지
     def __init__(self):
         super().__init__()
         self.conv1 = nn.Conv2d(2, 1, kernel_size=7, padding=3, bias=False)
@@ -90,8 +91,7 @@ class SpatialAttention(nn.Module):
 
 
 class CBAM(nn.Module):
-    """채널 어텐션 + 공간 어텐션."""
-
+    # 채널 어텐션 + 공간 어텐션
     def __init__(self, planes):
         super().__init__()
         self.ca = ChannelAttention(planes)
@@ -103,15 +103,15 @@ class CBAM(nn.Module):
 
 
 class EffEmoteNet(nn.Module):
-    """최종 선정 모델 (학습 코드의 EffEmoteNetSmall과 동일 구조).
+    """최종 선정 모델. 학습 코드의 EffEmoteNetSmall과 같은 구조
 
-    conv stem(3층) → CBAM → SE → MBConv x8 → head.
-    추론에 사용되는 파라미터 약 56M개.
+    conv stem 3층 -> CBAM -> SE -> MBConv x8 -> head
+    추론에 쓰는 파라미터 약 56M개
     """
 
     def __init__(self, num_classes=5):
         super().__init__()
-        self.conv1 = nn.Conv2d(4, 64, kernel_size=3, padding=1)
+        self.conv1 = nn.Conv2d(4, 64, kernel_size=3, padding=1)  # 입력 4채널 (RGB+Sobel)
         self.bn1 = nn.BatchNorm2d(64)
         self.conv2 = nn.Conv2d(64, 128, kernel_size=3, padding=1)
         self.bn2 = nn.BatchNorm2d(128)
@@ -160,10 +160,8 @@ class EffEmoteNet(nn.Module):
 
 
 def add_sobel_channel(img_tensor):
-    """(3,H,W) RGB 텐서에 Y-Sobel 엣지 채널을 붙여 (4,H,W)로 만든다.
-
-    감은 눈의 'ㅡ' 형태 수평 엣지를 강조하기 위해 Y방향 Sobel만 사용.
-    """
+    # (3,H,W) RGB에 Y-Sobel 엣지 채널 붙여서 (4,H,W)로
+    # 감은 눈의 'ㅡ' 모양 수평 엣지 강조 목적이라 Y방향 소벨만 사용
     r, g, b = img_tensor[0:1], img_tensor[1:2], img_tensor[2:3]
     gray = 0.299 * r + 0.587 * g + 0.114 * b
     sobel_y = torch.tensor(
@@ -175,9 +173,9 @@ def add_sobel_channel(img_tensor):
 
 
 def load_model(weights_path, device="cpu"):
-    """가중치를 로드한 eval 모드 모델을 반환한다."""
+    # 가중치 로드한 eval 모드 모델 반환. strict=True라 키 하나라도 어긋나면 에러
     model = EffEmoteNet()
     state = torch.load(weights_path, map_location=device, weights_only=True)
-    model.load_state_dict(state)  # strict=True: 키가 하나라도 어긋나면 실패
+    model.load_state_dict(state)
     model.to(device).eval()
     return model

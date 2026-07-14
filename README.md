@@ -127,8 +127,8 @@
 
 ### 1) 표정 인식 데모 (EffEmoteNet)
 
-학습된 가중치(`effemotenet_infer.pt`, 약 215MB / 56M 파라미터)는
-**[GitHub Releases](../../releases)** 에서 다운로드해 `models/` 폴더에 넣어주세요.
+학습 가중치(`effemotenet_infer.pt`, 약 215MB / 56M 파라미터)는
+**[GitHub Releases](../../releases)** 에서 다운로드 후 `models/` 폴더에 넣기
 
 ```bash
 pip install -r requirements.txt
@@ -137,12 +137,12 @@ python demo_emotion.py --webcam              # 웹캠 실시간 데모
 python demo_emotion.py --image face.jpg      # 이미지 1장 분류
 ```
 
-- `facenet-pytorch`가 설치되어 있으면 MTCNN으로 얼굴을 크롭해 입력하고, 없으면 프레임 전체를 사용합니다 (`pip install facenet-pytorch`, 선택).
-- 표의 추론 속도 3.06ms는 NVIDIA A40 기준이며, CPU에서는 프레임당 수십 ms 수준입니다.
+- `facenet-pytorch` 있으면 MTCNN 얼굴 크롭, 없으면 프레임 전체 사용 (`pip install facenet-pytorch`, 선택)
+- 표의 3.06ms는 NVIDIA A40 기준. CPU에서는 프레임당 수십 ms
 
 ### 2) LLM 대응 시나리오 데모 (Streamlit)
 
-감정 분류 결과에 따라 LLM이 경고·끝말잇기·119 연계 등 next_action을 결정하는 부분입니다.
+감정 분류 결과에 따라 LLM이 경고, 끝말잇기, 119 연계 등 next_action을 결정하는 파트
 
 ```bash
 cp .env.example .env   # GOOGLE_API_KEY, KOREAN_DICT_API_KEY 입력
